@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>ASCOMDriverTemplate.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Asmodat Standard SSH.NET">
+      <HintPath>..\Libs\Asmodat-Standard-SSH.NET\Asmodat Standard SSH.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
