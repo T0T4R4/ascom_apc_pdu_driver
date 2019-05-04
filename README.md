@@ -1,3 +1,6 @@
+
+[![Build status](https://ci.appveyor.com/api/projects/status/dtwqfn40imem1vpc?svg=true)](https://ci.appveyor.com/project/T0T4R4/ascom-apc-pdu-driver)
+
 # ASCOM Driver for APC's Power Distribution Units
 
 *Disclaimer: This program is not distributed by APC Enterprises. It is provided to the users community for free, under the Creative Common 3 license.*
