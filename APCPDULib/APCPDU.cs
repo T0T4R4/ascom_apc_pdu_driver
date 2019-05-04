@@ -107,7 +107,7 @@ namespace APCPDULib
                 if (i == 1)
                 {
                     if (!line.StartsWith("E000"))
-                        throw new Exception(String.Format("Unexpected reply from command : {0}", resp.Substring(0, 4)));
+                        throw new Exception(String.Format("PDU Command Error: {0}", line));
 
                     continue; // skip result
                 }
@@ -146,22 +146,14 @@ namespace APCPDULib
         /// Changes the status of an outlet and returns True if successful
         /// </summary>
         /// <param name="outletId"></param>
-        /// <param name="enabled"></param>
+        /// <param name="successful"></param>
         /// <returns></returns>
         public bool SetOutletStatus(int outletId, bool enabled)
         {
             var cmd = string.Format("{0} {1}", (enabled ? "olOn" : "olOff"), outletId);
+            ExecuteCommand(cmd);
 
-            var response = ExecuteCommand(cmd);
-
-            var tmp = Outlet.FromString(response[0]);
-
-            var outlet = this.Outlets.Find(o => o.Id == outletId);
-
-            if (outlet != null)
-                outlet.Status = tmp.Status;
-
-            return outlet.Enabled == enabled;
+            return true;
         }
 
         /// <summary>

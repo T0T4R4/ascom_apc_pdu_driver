@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\APCPDULib\APCPDULib.csproj">
-      <Project>{0fe375a3-18dc-4ce3-9580-5e0a151718b7}</Project>
+      <Project>{e7b60b13-0884-4748-835d-c8b655075d01}</Project>
       <Name>APCPDULib</Name>
     </ProjectReference>
   </ItemGroup>

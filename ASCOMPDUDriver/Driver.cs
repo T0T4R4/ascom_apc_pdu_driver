@@ -243,9 +243,7 @@ namespace ASCOM.APCPDU
                     {
                         LogMessage("", $"{e.ToString()}");
                         pdu = null;
-
-                        throw;
-                    }
+                    } 
                 }
                 else
                 {
@@ -255,8 +253,6 @@ namespace ASCOM.APCPDU
                     {
                         if ((pdu != null) && (pdu.IsConnected))
                             pdu.Disconnect(); // graceful disconncetion
-
-
                     }
                     catch (Exception e)
                     {
@@ -337,11 +333,11 @@ namespace ASCOM.APCPDU
         }
 
         /// <summary>
-        /// Return the name of switch n
+        /// Return the Id of the Outlet as displayed on the APC PDU Web Interface
         /// </summary>
-        /// <param name="id">The switch number to return</param>
+        /// <param name="id">index of the switch</param>
         /// <returns>
-        /// The name of the switch
+        /// Id of the Outlet as string
         /// </returns>
         public string GetSwitchName(short id)
         {
@@ -349,7 +345,7 @@ namespace ASCOM.APCPDU
                 throw new Exception("PDU not connected");
 
             if (id >= 0 && id < pdu.Outlets.Count)
-                return pdu.Outlets[id].Name;
+                return pdu.Outlets[id].Id.ToString();
             else
                 throw new Exception("Id out of range");
         }
@@ -365,13 +361,19 @@ namespace ASCOM.APCPDU
         }
 
         /// <summary>
-        /// Gets the switch description.
+        /// The Name of the Outlet as displayed on the APC PDU Web Interface
         /// </summary>
-        /// <param name="id">The id.</param>
-        /// <returns></returns>
+        /// <param name="id">index of the switch </param>
+        /// <returns>Name of the Outlet</returns>
         public string GetSwitchDescription(short id)
         {
-            return GetSwitchName(id);
+            if (!IsConnected)
+                throw new Exception("PDU not connected");
+
+            if (id >= 0 && id < pdu.Outlets.Count)
+                return pdu.Outlets[id].Name;
+            else
+                throw new Exception("Id out of range");
         }
 
         /// <summary>
@@ -395,7 +397,7 @@ namespace ASCOM.APCPDU
         /// Return the state of switch n
         /// a multi-value switch must throw a not implemented exception
         /// </summary>
-        /// <param name="id">The switch number to return</param>
+        /// <param name="id">index of the switch</param>
         /// <returns>
         /// True or false
         /// </returns>
@@ -406,7 +408,8 @@ namespace ASCOM.APCPDU
 
             if (id >= 0 && id < pdu.Outlets.Count)
             {
-                return pdu.GetOutletStatus(id);
+                var outlet_id = pdu.Outlets[id].Id ;
+                return pdu.GetOutletStatus(outlet_id);
             }
             else
                 throw new Exception("Id out of range");
@@ -418,8 +421,8 @@ namespace ASCOM.APCPDU
         /// A multi-value switch must throw a not implemented exception
         /// setting it to false will set it to its minimum value.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="state"></param>
+        /// <param name="id">index of the switch</param>
+        /// <param name="state">true to turn switch ON, false to turn switch OFF</param>
         public void SetSwitch(short id, bool state)
         {
             if (!CanWrite(id))
@@ -430,10 +433,11 @@ namespace ASCOM.APCPDU
 
             if (id >= 0 && id < pdu.Outlets.Count)
             {
-                var newState = pdu.SetOutletStatus(id, state);
-                if (state != newState)
+                var outlet_id = pdu.Outlets[id].Id;
+
+                if (!pdu.SetOutletStatus(outlet_id, state))
                 {
-                    throw new Exception($"Failed to change state of outlet {id}");
+                    throw new Exception($"Failed to change state of switch {id}");
                 }
             }
             else

@@ -19,8 +19,8 @@ namespace ASCOM
     public class Options
     {
 
-        [Option('o', "outlet", Required = false, HelpText = "Outlet Id on which to perform ON/OFF tests", Default = 22)]
-        public short OutletId { get; set; }
+        [Option('o', "outlet", Required = false, HelpText = "PDU Outlet Id on which to perform ON/OFF tests")]
+        public string OutletId { get; set; }
 
 
     }
@@ -77,25 +77,52 @@ namespace ASCOM
             Console.WriteLine("DriverInfo " + device.DriverInfo);
             Console.WriteLine("driverVersion " + device.DriverVersion);
 
-            // Connect to the driver.
-            device.Connected = true;
+            try
+            {
 
-            var sw_name = device.GetSwitchName(_options.OutletId);
+                // Connect to the driver.
+                device.Connected = true;
 
-            var sw_status = device.GetSwitch(_options.OutletId);
-            Console.WriteLine($"Switch #{_options.OutletId} '{sw_name}' : {sw_status}");
+                if (device.Connected)
+                {
+                    Console.WriteLine("Listing Outlets:");
+                    for (short i = 0; i < device.MaxSwitch; i++)
+                    {
+                        var outlet_id = device.GetSwitchName(i);
+                        var outlet_name = device.GetSwitchName(i);
+                        var outlet_isOn = device.GetSwitch(i);
+                        Console.WriteLine($"   #{outlet_id} '{outlet_name}' = {outlet_isOn}");
+                    }
 
-            Console.WriteLine("Toggling status...");
-            device.SetSwitch(_options.OutletId, !sw_status);
+                    if (!string.IsNullOrEmpty(_options.OutletId))
+                    {
+                        // is there an outlet with this Id ?
+                        for (short i = 0; i < device.MaxSwitch; i++)
+                        {
+                            if (device.GetSwitchName(i) == _options.OutletId)
+                            {
+                                var state = device.GetSwitch(i);
+                                device.SetSwitch(i, !state); // toggle switch state
+                                var newstate = device.GetSwitch(i);
+                                Console.WriteLine((state == newstate) ? "Toggle Successful" : "Toggle failed");
+                                break;
+                            }
+                        }
+                    }
 
-            sw_status = device.GetSwitch(_options.OutletId);
-            Console.WriteLine($"Switch #{_options.OutletId} '{sw_name}' : {sw_status}");
+                }
 
-            // Disconnect from the Device
-            device.Connected = false;
+                // Disconnect from the Device
+                device.Connected = false;
 
-            Console.WriteLine("Press Enter to finish");
-            Console.ReadLine();
+                Console.WriteLine("Press Enter to finish");
+                Console.ReadLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                throw;
+            }
         }
     }
 }

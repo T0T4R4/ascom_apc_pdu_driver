@@ -13,7 +13,7 @@ AppSupportURL=http://tech.groups.yahoo.com/group/ASCOM-Talk/
 AppUpdatesURL=http://ascom-standards.org/
 VersionInfoVersion=1.0.0
 MinVersion=0,5.0.2195sp4
-DefaultDirName="{cf}\ASCOM\Switch"
+DefaultDirName="{cf}\ASCOM\Switch\APCPDU"
 DisableDirPage=yes
 DisableProgramGroupPage=yes
 OutputDir="."
@@ -37,7 +37,8 @@ Name: "{cf}\ASCOM\Uninstall\Switch\APCPDU"
 ; Require a read-me HTML to appear after installation, maybe driver's Help doc
 Source: "Readme.html"; DestDir: "{app}"; Flags: isreadme
 Source: "ASCOMPDUDriver\bin\Debug\*.*"; DestDir: "{app}"
-Source: "ASCOMPDUDriverTest\bin\Debug\*.*"; DestDir: "{app}\Test"
+Source: "ASCOMPDUDriverTest\bin\Debug\*.*"; DestDir: "{app}\ASCOM Driver Test"
+Source: "APCPDUTest\bin\Debug\*.*"; DestDir: "{app}\PDU Console Test"
 
 ; Only if driver is .NET
 [Run]

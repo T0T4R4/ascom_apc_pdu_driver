@@ -27,8 +27,8 @@ namespace APCPDUTest
             [Option('w', "password", Required = true, HelpText = "Password to connect to the PDU unit via SSH")]
             public string Password { get; set; }
 
-            [Option('o', "outlet", Required = false, HelpText = "Test outlet Id", Default = 22)]
-            public short TestOutletId{ get; set; }
+            [Option('o', "outlet", Required = false, HelpText = "Test outlet Id")]
+            public int? TestOutletId{ get; set; }
         }
 
         static void HandleParseError(IEnumerable<Error> errors)
@@ -55,7 +55,8 @@ namespace APCPDUTest
                 .WithParsed<Options>(opts => RunOptionsAndReturnExitCode(opts))
                 .WithNotParsed<Options>((errs) => HandleParseError(errs));
 
-
+            Console.Write("Please press ENTER to exit");
+            Console.ReadKey();
         }
 
         static void DoTests()
@@ -77,9 +78,9 @@ namespace APCPDUTest
                         Console.WriteLine("Listing Outlets:");
                         pdu.Outlets.ForEach(o => Console.WriteLine($"Outlet '{o.Name}' is currently '{o.Status}'"));
 
-                        if (pdu.Outlets.Count > 0)
+                        if (pdu.Outlets.Count > 0 && _options.TestOutletId.HasValue)
                         {
-                            var enabled = pdu.GetOutletStatus(_options.TestOutletId);
+                            var enabled = pdu.GetOutletStatus(_options.TestOutletId.Value);
                             Console.WriteLine($"Status of outlet #1: {enabled}");
                         }
 
@@ -93,11 +94,6 @@ namespace APCPDUTest
                     pdu.Disconnect();
 
                 Console.WriteLine(e.ToString());
-            }
-            finally
-            {
-                Console.Write("Application Ended. Please press a key to exit");
-                Console.ReadKey();
             }
         }
     }
