@@ -34,11 +34,10 @@ Name: "{cf}\ASCOM\Uninstall\Switch\APCPDU"
 ; TODO: Add subfolders below {app} as needed (e.g. Name: "{app}\MyFolder")
 
 [Files]
-Source: "D:\dev\usq-research\mtkent\pdu-driver\ASCOMPDUDriver\ASCOMPDUDriver\bin\Debug\*.*"; DestDir: "{app}"
 ; Require a read-me HTML to appear after installation, maybe driver's Help doc
-Source: "D:\dev\usq-research\mtkent\pdu-driver\ASCOMPDUDriver\ASCOMPDUDriver\Readme.html"; DestDir: "{app}"; Flags: isreadme
-; TODO: Add other files needed by your driver here (add subfolders above)
-
+Source: "Readme.html"; DestDir: "{app}"; Flags: isreadme
+Source: "ASCOMPDUDriver\bin\Debug\*.*"; DestDir: "{app}"
+Source: "ASCOMPDUDriverTest\bin\Debug\*.*"; DestDir: "{app}\Test"
 
 ; Only if driver is .NET
 [Run]
