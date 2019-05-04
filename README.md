@@ -8,7 +8,6 @@ This is my implementation of an **[ASCOM](https://ascom-standards.org/) Driver**
 your **[Schneider Electric/APC Switched Rack PDU](https://astrohaven.com/)** via its SSH interface.
 
 The driver is built in C# using the open-source *ASCOM Driver Visual Studio template*  , provided by the *ASCOM Initiative*.
-![screenshot](https://user-images.githubusercontent.com/1294511/54508504-da1e1180-4991-11e9-8bdb-8db12b207d3b.png)
 
 ## Requirements
 
