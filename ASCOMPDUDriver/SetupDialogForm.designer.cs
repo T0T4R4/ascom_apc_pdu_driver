@@ -42,6 +42,9 @@ namespace ASCOM.APCPDU
             this.label1 = new System.Windows.Forms.Label();
             this.txtUsername = new System.Windows.Forms.TextBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtKeepAliveInterval = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -50,10 +53,10 @@ namespace ASCOM.APCPDU
             // 
             this.cmdOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(498, 84);
+            this.cmdOK.Location = new System.Drawing.Point(530, 87);
             this.cmdOK.Name = "cmdOK";
-            this.cmdOK.Size = new System.Drawing.Size(59, 24);
-            this.cmdOK.TabIndex = 0;
+            this.cmdOK.Size = new System.Drawing.Size(79, 24);
+            this.cmdOK.TabIndex = 10;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
             this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
@@ -62,10 +65,10 @@ namespace ASCOM.APCPDU
             // 
             this.cmdCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(498, 114);
+            this.cmdCancel.Location = new System.Drawing.Point(530, 115);
             this.cmdCancel.Name = "cmdCancel";
-            this.cmdCancel.Size = new System.Drawing.Size(59, 25);
-            this.cmdCancel.TabIndex = 1;
+            this.cmdCancel.Size = new System.Drawing.Size(79, 25);
+            this.cmdCancel.TabIndex = 11;
             this.cmdCancel.Text = "Cancel";
             this.cmdCancel.UseVisualStyleBackColor = true;
             this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
@@ -89,7 +92,7 @@ namespace ASCOM.APCPDU
             this.chkTrace.Location = new System.Drawing.Point(483, 15);
             this.chkTrace.Name = "chkTrace";
             this.chkTrace.Size = new System.Drawing.Size(69, 17);
-            this.chkTrace.TabIndex = 6;
+            this.chkTrace.TabIndex = 1;
             this.chkTrace.Text = "Trace on";
             this.chkTrace.UseVisualStyleBackColor = true;
             // 
@@ -109,7 +112,7 @@ namespace ASCOM.APCPDU
             this.txtPort.Location = new System.Drawing.Point(359, 41);
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(53, 20);
-            this.txtPort.TabIndex = 8;
+            this.txtPort.TabIndex = 2;
             this.txtPort.Text = "22";
             this.txtPort.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -155,41 +158,73 @@ namespace ASCOM.APCPDU
             this.txtHost.Mask = "000.000.000.000";
             this.txtHost.Name = "txtHost";
             this.txtHost.Size = new System.Drawing.Size(100, 20);
-            this.txtHost.TabIndex = 10;
+            this.txtHost.TabIndex = 0;
             this.txtHost.ValidatingType = typeof(int);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(356, 64);
+            this.label1.Location = new System.Drawing.Point(418, 44);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(196, 13);
+            this.label1.Size = new System.Drawing.Size(200, 13);
             this.label1.TabIndex = 14;
-            this.label1.Text = "Ensure that SSH is enabled on the PDU";
+            this.label1.Text = "*Ensure that SSH is enabled on the PDU";
             // 
             // txtUsername
             // 
             this.txtUsername.Location = new System.Drawing.Point(360, 90);
             this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(99, 20);
-            this.txtUsername.TabIndex = 15;
+            this.txtUsername.Size = new System.Drawing.Size(114, 20);
+            this.txtUsername.TabIndex = 4;
             this.txtUsername.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // txtPassword
             // 
             this.txtPassword.Location = new System.Drawing.Point(360, 117);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(99, 20);
-            this.txtPassword.TabIndex = 16;
+            this.txtPassword.PasswordChar = '*';
+            this.txtPassword.Size = new System.Drawing.Size(114, 20);
+            this.txtPassword.TabIndex = 5;
             this.txtPassword.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(299, 67);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(120, 13);
+            this.label2.TabIndex = 16;
+            this.label2.Text = "Send KeepAlives every ";
+            // 
+            // txtKeepAliveInterval
+            // 
+            this.txtKeepAliveInterval.Location = new System.Drawing.Point(421, 64);
+            this.txtKeepAliveInterval.Name = "txtKeepAliveInterval";
+            this.txtKeepAliveInterval.Size = new System.Drawing.Size(53, 20);
+            this.txtKeepAliveInterval.TabIndex = 3;
+            this.txtKeepAliveInterval.Text = "10";
+            this.txtKeepAliveInterval.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(480, 67);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(47, 13);
+            this.label3.TabIndex = 17;
+            this.label3.Text = "seconds";
             // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(567, 147);
+            this.ClientSize = new System.Drawing.Size(621, 149);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.txtKeepAliveInterval);
             this.Controls.Add(this.txtPassword);
             this.Controls.Add(this.txtUsername);
             this.Controls.Add(this.label1);
@@ -234,5 +269,8 @@ namespace ASCOM.APCPDU
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtUsername;
         private System.Windows.Forms.TextBox txtPassword;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtKeepAliveInterval;
+        private System.Windows.Forms.Label label3;
     }
 }

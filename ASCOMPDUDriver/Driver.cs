@@ -68,7 +68,8 @@ namespace ASCOM.APCPDU
             hostProfileName = "Host",
             portProfileName = "Port",
             usernameProfileName = "Username",
-            passwordProfileName = "Password"
+            passwordProfileName = "Password",
+            keepAliveIntervalName = "KeepAliveInterval"
             ;
 
         // Variables to hold the default device configuration
@@ -79,17 +80,13 @@ namespace ASCOM.APCPDU
             passwordDefault = "apc";
 
         internal static int portDefault = 22; // default SSH port (Ensure that you have enabled SSH on your PDU)
+        internal static int keepAliveIntervalDefault = 10;
 
         // Variables to hold the currrent device configuration
         internal static string pdu_host, pdu_username, pdu_password;
-        internal static int pdu_port;
+        internal static int pdu_port, pdu_keepAliveInterval;
 
         private static APCPDULib.APCPDU pdu = null;
-
-        /// <summary>
-        /// Private variable to hold the connected state
-        /// </summary>
-        private bool connectedState;
 
         /// <summary>
         /// Private variable to hold an ASCOM Utilities object
@@ -112,16 +109,14 @@ namespace ASCOM.APCPDU
         /// </summary>
         public Switch()
         {
-            tl = new TraceLogger("", "APCPDU");
+            tl = new TraceLogger(null, "APCPDU");
+
             ReadProfile(); // Read device configuration from the ASCOM Profile store
 
             tl.LogMessage("Switch", "Starting initialisation");
 
-            connectedState = false; // Initialise connected to false
-            utilities = new Util(); //Initialise util object
-            astroUtilities = new AstroUtils(); // Initialise astro utilities object
-
-            //TODO: Implement your additional construction here
+            utilities = new Util(); 
+            astroUtilities = new AstroUtils(); 
 
             tl.LogMessage("Switch", "Completed initialisation");
         }
@@ -166,7 +161,7 @@ namespace ASCOM.APCPDU
 
         public string Action(string actionName, string actionParameters)
         {
-            throw new ASCOM.ActionNotImplementedException("Action " + actionName + " is not implemented by this driver");
+            throw new ASCOM.ActionNotImplementedException("Action '" + actionName + "' is not implemented by this driver");
         }
 
         public void CommandBlind(string command, bool raw)
@@ -195,7 +190,6 @@ namespace ASCOM.APCPDU
             // it's a good idea to put all the low level communication with the device here,
             // then all communication calls this function
             // you need something to ensure that only one command is in progress at a time
-
             throw new ASCOM.MethodNotImplementedException("CommandString");
         }
 
@@ -215,58 +209,24 @@ namespace ASCOM.APCPDU
         {
             get
             {
-                LogMessage("Connected", "Get {0}", IsConnected);
                 return IsConnected;
             }
             set
             {
-                tl.LogMessage("Connected", "Set {0}", value);
                 if (value == IsConnected)
-                    return;
+                    return; // setting to the current state does nothing
 
                 if (value)
                 {
-
-                    // Connect to the device
-                    try
-                    {
-                        connectedState = false;
-
-                        pdu = new APCPDULib.APCPDU(pdu_host, pdu_port, pdu_username, pdu_password);
-
-                        pdu.Connect();
-                        this.numSwitch = (short)pdu.Outlets.Count;
-
-                        connectedState = true;
-                    }
-                    catch (Exception e)
-                    {
-                        LogMessage("", $"{e.ToString()}");
-                        pdu = null;
-                    } 
+                    connectToPDU();
                 }
                 else
                 {
-
-                    // Disconnect from the device
-                    try
-                    {
-                        if ((pdu != null) && (pdu.IsConnected))
-                            pdu.Disconnect(); // graceful disconncetion
-                    }
-                    catch (Exception e)
-                    {
-                        LogMessage("", $"{e.ToString()}");
-                    }
-                    finally
-                    {
-                        connectedState = false;
-                        pdu = null; // forces the client to disconnect even if we have failed doing it gracefully
-                    }
-
+                    disconnectFromPDU();
                 }
             }
         }
+
 
         public string Description
         {
@@ -298,10 +258,9 @@ namespace ASCOM.APCPDU
 
         public short InterfaceVersion
         {
-            // set by the driver wizard
             get
             {
-                return Convert.ToInt16("2");
+                return 2;
             }
         }
 
@@ -309,9 +268,7 @@ namespace ASCOM.APCPDU
         {
             get
             {
-                string name = "ASCOM.APCPDU.Switch";
-                tl.LogMessage("Name Get", name);
-                return name;
+                return "ASCOM.APCPDU.Switch";
             }
         }
 
@@ -319,17 +276,12 @@ namespace ASCOM.APCPDU
 
         #region ISwitchV2 Implementation
 
-        private short numSwitch = 0;
-
         /// <summary>
         /// The number of switches managed by this driver
         /// </summary>
         public short MaxSwitch
         {
-            get
-            {
-                return this.numSwitch;
-            }
+            get; private set;
         }
 
         /// <summary>
@@ -342,12 +294,12 @@ namespace ASCOM.APCPDU
         public string GetSwitchName(short id)
         {
             if (!IsConnected)
-                throw new Exception("PDU not connected");
+                throw new Exception("Error in 'GetSwitchName': PDU not connected");
 
             if (id >= 0 && id < pdu.Outlets.Count)
                 return pdu.Outlets[id].Id.ToString();
             else
-                throw new Exception("Id out of range");
+                throw new Exception("Error in 'GetSwitchName': Id out of range");
         }
 
         /// <summary>
@@ -368,12 +320,12 @@ namespace ASCOM.APCPDU
         public string GetSwitchDescription(short id)
         {
             if (!IsConnected)
-                throw new Exception("PDU not connected");
+                throw new Exception("Error in 'GetSwitchDescription': PDU not connected");
 
             if (id >= 0 && id < pdu.Outlets.Count)
                 return pdu.Outlets[id].Name;
             else
-                throw new Exception("Id out of range");
+                throw new Exception("Error in 'GetSwitchDescription': Id out of range");
         }
 
         /// <summary>
@@ -404,7 +356,7 @@ namespace ASCOM.APCPDU
         public bool GetSwitch(short id)
         {
             if (!IsConnected)
-                throw new Exception("PDU not connected");
+                throw new Exception("Error in 'GetSwitch': PDU device not connected !");
 
             if (id >= 0 && id < pdu.Outlets.Count)
             {
@@ -412,7 +364,7 @@ namespace ASCOM.APCPDU
                 return pdu.GetOutletStatus(outlet_id);
             }
             else
-                throw new Exception("Id out of range");
+                throw new Exception($"Error in 'GetSwitch(id={id})': 'id' should be less than {pdu.Outlets.Count}");
         }
 
         /// <summary>
@@ -427,8 +379,7 @@ namespace ASCOM.APCPDU
         {
             if (!CanWrite(id))
             {
-                var str = $"SetSwitch({id}) - Cannot Write";
-                throw new Exception(str);
+                throw new Exception($"Error in SetSwitch(id={id}): Cannot Write");
             }
 
             if (id >= 0 && id < pdu.Outlets.Count)
@@ -437,71 +388,15 @@ namespace ASCOM.APCPDU
 
                 if (!pdu.SetOutletStatus(outlet_id, state))
                 {
-                    throw new Exception($"Failed to change state of switch {id}");
+                    throw new Exception($"Error in SetSwitch(id={id}): Failed to change state");
                 }
             }
             else
-                throw new Exception("Id out of range");
+                throw new Exception($"Error in SetSwitch(id={id}): 'id' should be less than {pdu.Outlets.Count}");
 
         }
 
         #endregion
-
-        #endregion
-
-        #region private methods
-
-        /// <summary>
-        /// Checks that the switch id is in range and throws an InvalidValueException if it isn't
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="id">The id.</param>
-        //private void Validate(string message, short id)
-        //{
-        //    if (id < 0 || id >= numSwitch)
-        //    {
-        //        tl.LogMessage(message, string.Format("Switch {0} not available, range is 0 to {1}", id, numSwitch - 1));
-        //        throw new InvalidValueException(message, id.ToString(), string.Format("0 to {0}", numSwitch - 1));
-        //    }
-        //}
-
-        /// <summary>
-        /// Checks that the switch id and value are in range and throws an
-        /// InvalidValueException if they are not.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="id">The id.</param>
-        /// <param name="value">The value.</param>
-        //private void Validate(string message, short id, double value)
-        //{
-        //    Validate(message, id);
-        //    var min = MinSwitchValue(id);
-        //    var max = MaxSwitchValue(id);
-        //    if (value < min || value > max)
-        //    {
-        //        tl.LogMessage(message, string.Format("Value {1} for Switch {0} is out of the allowed range {2} to {3}", id, value, min, max));
-        //        throw new InvalidValueException(message, value.ToString(), string.Format("Switch({0}) range {1} to {2}", id, min, max));
-        //    }
-        //}
-
-        /// <summary>
-        /// Checks that the number of states for the switch is correct and throws a methodNotImplemented exception if not.
-        /// Boolean switches must have 2 states and multi-value switches more than 2.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="id"></param>
-        /// <param name="expectBoolean"></param>
-        //private void Validate(string message, short id, bool expectBoolean)
-        //{
-        //    Validate(message, id);
-        //    var ns = (int)(((MaxSwitchValue(id) - MinSwitchValue(id)) / SwitchStep(id)) + 1);
-        //    if ((expectBoolean && ns != 2) || (!expectBoolean && ns <= 2))
-        //    {
-        //        tl.LogMessage(message, string.Format("Switch {0} has the wriong number of states", id, ns));
-        //        throw new MethodNotImplementedException(string.Format("{0}({1})", message, id));
-        //    }
-        //}
-
 
         #endregion
 
@@ -590,8 +485,7 @@ namespace ASCOM.APCPDU
         {
             get
             {
-                // TODO check that the driver hardware connection exists and is connected to the hardware
-                return connectedState;
+                return (pdu != null) && (pdu.IsConnected);
             }
         }
 
@@ -628,6 +522,10 @@ namespace ASCOM.APCPDU
                 pdu_username = driverProfile.GetValue(driverID, usernameProfileName, string.Empty, usernameDefault);
                 pdu_password = driverProfile.GetValue(driverID, passwordProfileName, string.Empty, passwordDefault);
 
+                var keepAliveIntervalStr = driverProfile.GetValue(driverID, keepAliveIntervalName, string.Empty, keepAliveIntervalDefault.ToString());
+                int keepAliveInterval;
+                if (int.TryParse(keepAliveIntervalStr, out keepAliveInterval))
+                    pdu_keepAliveInterval = keepAliveInterval;
             }
         }
 
@@ -645,6 +543,7 @@ namespace ASCOM.APCPDU
                 driverProfile.WriteValue(driverID, portProfileName, pdu_port.ToString());
                 driverProfile.WriteValue(driverID, usernameProfileName, pdu_username.ToString());
                 driverProfile.WriteValue(driverID, passwordProfileName, pdu_password.ToString());
+                driverProfile.WriteValue(driverID, keepAliveIntervalName, pdu_keepAliveInterval.ToString());
 
             }
         }
@@ -691,6 +590,54 @@ namespace ASCOM.APCPDU
             throw new System.NotImplementedException();
         }
 
+        #endregion
+
+        #region custom
+
+
+        private void connectToPDU()
+        {
+            // disconnect for safety
+            disconnectFromPDU();
+
+            // Connect to the device
+            try
+            {
+                pdu = new APCPDULib.APCPDU(pdu_host, pdu_port, pdu_username, pdu_password);
+
+                pdu.Connect();
+
+                // Note: the number of accessible PDU outlets depending on the permissions given to the user used to log on the device
+                this.MaxSwitch = (short)pdu.Outlets.Count;
+
+            }
+            catch (Exception e)
+            {
+                LogMessage("", $"{e.ToString()}");
+
+                // disconnect for safety
+                disconnectFromPDU();
+
+            }
+        }
+
+        private void disconnectFromPDU()
+        {
+            // gracefully disconnect from PDU
+            try
+            {
+                if ((pdu != null) && (pdu.IsConnected))
+                    pdu.Disconnect(); // graceful disconnection
+            }
+            catch (Exception e)
+            {
+                LogMessage("", $"{e.ToString()}");
+            }
+            finally
+            {
+                pdu = null; // forces the client to disconnect even if we have failed doing it gracefully
+            }
+        }
         #endregion
     }
 }

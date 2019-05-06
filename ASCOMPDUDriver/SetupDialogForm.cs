@@ -34,6 +34,12 @@ namespace ASCOM.APCPDU
             else
                 Switch.pdu_port = 22;
 
+            int keepAliveInterval;
+            if (int.TryParse(txtKeepAliveInterval.Text, out keepAliveInterval))
+                Switch.pdu_keepAliveInterval = port;
+            else
+                Switch.pdu_keepAliveInterval = 22;
+
             Switch.tl.Enabled = chkTrace.Checked;
         }
 
@@ -65,6 +71,7 @@ namespace ASCOM.APCPDU
             txtPort.Text = Switch.pdu_port.ToString();
             txtUsername.Text = Switch.pdu_username;
             txtPassword.Text = Switch.pdu_password;
+            txtKeepAliveInterval.Text = Switch.pdu_keepAliveInterval.ToString();
         }
     }
 }

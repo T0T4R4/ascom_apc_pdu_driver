@@ -36,7 +36,7 @@ namespace APCPDULib
         /// <param name="port"></param>
         /// <param name="username"></param>
         /// <param name="password"></param>
-        public APCPDU(string hostname, int port, string username, string password)
+        public APCPDU(string hostname, int port, string username, string password, double keepAliveSecs = 0)
         {
             _hostname = hostname;
             _port = port;
@@ -44,7 +44,10 @@ namespace APCPDULib
             _password = password;
 
             _client = new SshClient(_hostname, _port, _username, _password);
-
+            if (keepAliveSecs > 0)
+            {
+                _client.KeepAliveInterval = TimeSpan.FromSeconds(keepAliveSecs);
+            }
             this.Outlets = new List<Outlet>();
         }
 
